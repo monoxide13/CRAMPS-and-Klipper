@@ -14,14 +14,14 @@
 	// Only compatible with beaglebone black
 	compatible = "ti,beaglebone-black";
 
-	// Part number. Not sure what this part is for.
+	// Part number. Used for loading with capemgr (depreciated).
 	part-number = "CRAMPS";
 
-	// Version must be "00A0".
+	// Version can be used to test changes. Note that this should be changed in the Makefile as this needs to match with the name.
 	version = "00A0";
 
 	// Tell linux we want exclusive control over these pins.
-	exclusive-use = 
+	exclusive-use =
 	// PRUs
 		"pruss",
 	// Power and Control
@@ -43,9 +43,9 @@
 
 	// Configure the pins.
 	fragment@0 {
-		target = <&am33x_pinmux>;
+		target = <&am33xx_pinmux>;
 		__overlay__ {
-			cramps_pins: CRAMPS_Pins {
+			cramps_pins: cramps_pins {
 				pinctrl-single,pins = <
 				// Power and Control
 					0x044 0x07	/* P9.23  GPIO1[17] out, pd  machine_pwr MACHINE_PWR */

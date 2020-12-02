@@ -1,8 +1,13 @@
 # CRAMPS
 This repo is where you'll find the device tree files and instructions on how to be able to use CRAMPS on the Beagle Board Black. This has changed a lot over recent years, so if it becomes out of date again please open an issue.
 
-#NO WORKEE.
+##SOMEWHAT WORKING.
 This code is still in developement. Mainly because I'm still trying to figure out the loading of DTO into UBOOT...
+In /boot/uEnv.txt, make the following changes.
+enable_uboot_overlays=1
+dtb_overlay=/lib/firmware/CRAMPS-00A0.dtbo
+disable_uboot_overlay_emmc=1;
+disable_uboot_overlay_audio=1;
 
 ## What is CRAMPS?
 [CRAMPS](https://github.com/cdsteinkuehler/bobc_hardware/tree/CRAMPS/CRAMPS) is a cape for the [Beagle Bone Black](https://beagleboard.org/black). It allows control of 6 stepper motors using Pololu Drivers and multiple FETs. It also has inputs for 6 end stops, 4 thermistors, and an E-stop. CRAMPS originated from RAMPS, which was designed for an Arduino.

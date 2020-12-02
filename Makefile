@@ -1,6 +1,6 @@
 # CRAMPS device tree overlay
 
-VERSION := 00C0
+VERSION := 00A0
 
 default: CRAMPS-$(VERSION).dtbo
 
