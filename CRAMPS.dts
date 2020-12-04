@@ -88,7 +88,7 @@
 	fragment@1{
 		target = <&ocp>;
 		__overlay__ {
-			cramps_helper: helper {
+			cramps_helper: cramps_helper {
 				compatible = "bone-pinmux-helper";
 				pinctrl-names = "default";
 				pinctrl-0 = <&cramps_pins>;
