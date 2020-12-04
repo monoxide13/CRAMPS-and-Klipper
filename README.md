@@ -50,8 +50,11 @@ After installing and rebooting, check to see if the trees are loaded. <code>sudo
 ### U-Boot version
 The debian version I originally installed had an old version of U-Boot. Updating should be the first thing you do before going through the work of setting up the DTO.
 U-Boot version can be checked by running:
+
 	sudo /opt/scripts/tools/version.sh | grep bootloader
+
 U-Boot can be updated by running the following as root (sudo su):
+
 	cd /opt/scripts
 	git pull
 	./tools/developers/update_bootloader.sh
@@ -60,6 +63,7 @@ U-Boot can be updated by running the following as root (sudo su):
 ### Device Tree Compiler Version
 It is know on some systems the DTC may be out of date. If you get an error during make about the "-@" flag, it needs updating.
 Update with these commands:
+
 	wget -c https://raw.githubusercontent.com/RobertCNelson/tools/master/pkgs/dtc.sh
 	chmod +x dtc.sh
 	sudo ./dtc.sh
