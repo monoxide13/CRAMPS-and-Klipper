@@ -1,71 +1,97 @@
-# CRAMPS
+# CRAMPS and Klipper on the Beaglebone
 This repo is where you'll find the device tree files and instructions on how to be able to use CRAMPS on the Beagle Board Black. This has changed a lot over recent years, so if it becomes out of date again please open an issue.
 
-##SOMEWHAT WORKING.
-This code is still in developement. Mainly because I'm still trying to figure out the loading of DTO into UBOOT...
+##STATUS
+This code is still in developement.
+Written for Debian 10.3
+
+###TODO:
+Write script to configure pins.
+Figure out the loading of DTO into UBOOT.
+Create working configuration file for Klipper.
 
 ## What is CRAMPS?
-[CRAMPS](https://github.com/cdsteinkuehler/bobc_hardware/tree/CRAMPS/CRAMPS) is a cape for the [Beagle Bone Black](https://beagleboard.org/black). It allows control of 6 stepper motors using Pololu Drivers and multiple FETs. It also has inputs for 6 end stops, 4 thermistors, and an E-stop. CRAMPS originated from RAMPS, which was designed for an Arduino.
+[CRAMPS](https://github.com/cdsteinkuehler/bobc_hardware/tree/CRAMPS/CRAMPS) is a cape for the [Beagle Bone Black](https://beagleboard.org/black). It allows control of 6 stepper motors using Pololu Drivers and control of heaters and outputs via multiple FETs. It also has inputs for 6 end stops, 4 thermistors, and an E-stop. CRAMPS originated from RAMPS, which was designed for an Arduino.
 
 The advantage of using the Beagle Bone Black (BBB) is that the BBB has 2 onboard Programable Realtime Units (PRU). These PRUs allow realtime control of devices via the BBB GPIO pins. This allows Linux to load the PRUs with the motion commands, and the PRUs control the motion and timing. Linus is therefore free to run other control software such as Octopi.
 
-Most CRAMPS boards are used in 3D Printers and other CNC machines.
+## What is Klipper?
+[Klipper](https://www.klipper3d.org) is a 3d printer firmware. It takes in the G-Code commands via serial and converts that into motion (step-and-direction) and turning the heaters on and off. It is the software/firmware that actually flips the pins telling the electronics what to do. Klipper uses the PRUs on the Beagle Bone to do most of this without Linux interference. I'm using Octoprint to send the serial commands to Klipper for control.
 
-## What is a Device Tree?
-Many years ago board manufactures were submitting their board files to be included in the Linux kernel. That file would define available pins and capabilites of that board. With so many different boards being produced, it became a lot of unnecessary bloat. It was decided a new method was needed, and thus device trees.
+## Instructions:
+I'm starting from a blank install of Debian 10.3 IOT and booting the Beagle Bone from the SD card. If you didn't expand the filesystem after writing debian to the SD, it can be done on the Beagle Bone with "/opt/scripts/tools/grow_partition.sh".
+### Update system
+First step is to make sure our system is up to date. If you need to connect to wifi use "/opt/scripts/network/wifi_enterprise.sh"
+<code>
+sudo apt-get update
+sudo apt-get upgrade
+cd /opt/scripts
+git pull
+/opt/scripts/tools/update_kernel.sh
+/opt/scripts/tools/developers/update_bootloader.sh
+shutdown -r now
+</code>
 
-We used to be able to use device tree "slots" for dynamic loading. This method came with a lot of problems and lacked important features.
-The new method is loading device tree overlays (DTO's) wtih U-Boot, which will take all device trees, flatten them into one, and pass it along to the linux kernal for boot.
+### Download and Install Octoprint
+Octoprint requires Python 3.6+. The latest version of Python on Debian 10.3 at the time of writing is 3.7
 
-## How do I compile and install the device tree?
+This section will install Python 3.9 if for some reason you want it. If you are going to use 3.7 as installed, skip to the bottom of this section.
+<code>
+sudo apt-get install build-essential zlib1g-dev libncurses5-dev libgdm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev curl libbz2-dev
+cd ~/
+wget https://www.python.org/ftp/python/3.9.1/Python-3.9.1.tar.xz
+tar xf Python-3.9.1.tar.xz
+cd Python-3.9.1
+</code>
+The next command will configure Python for our system and make sure all dependencies are installed. The "--enable-optimizations" flag will tell Python to try optimizing the code. This will cause Python to take longer to build but will increase it's execution speed. This flag is technically optional, but I highly recommend it.
+<code>
+./configure --enable-optimizations
+</code>
+Time to compile Python. This will take a long time! 3ish hours.
+<code>
+make
+</code>
+If you want to make this version of Python the default, run "sudo make install" instead of the following. I recommend not.
+<code>
+sudo make altinstall
+</code>
+Veryify the version by running "python3.9 --version".
+Create the virtual environment.
+<code>
+python3.9 -m venv octoprint
+</code>
 
-	make
-	sudo make install
+Using python 3.7? Use the following to install the required packages from the repo.
+<code>
+sudo apt-get install python3-pip python3-dev python3-setuptools python3-venv libyaml-dev build-essential
+python3.7 -m venv octoprint
+</code>
 
-In /boot/uEnv.txt, make the following changes. You may need to uncomment these by removing the first char '#'.
+Now use the virtual envirnment to install and then run Octoprint.
+<code>
+source octoprint/bin/activate
+pip install pip --upgrade
+pip install octoprint
+octoprint/bin/octoprint serve
+</code>
 
-	dtb=/lib/firmware/BB-NHDMI-TDA998x-00A0.dtbo
-	enable_uboot_overlays=1
-	dtb_overlay=/lib/firmware/CRAMPS-00A0.dtbo
+Navigate to http://<IP>:5000 and go through the Octoprint setup.
 
-The following two I believe are not needed to be uncommented, but I haven't confirmed. So for now, uncomment.
+Set Octoprint to start on boot. After downloading the service file, change "User=" to be your user, and "ExecStart=" to be the path of installation (/home/debian/octoprint/bin/octoprint).
+<code>
+wget https://github.com/Octoprint/Octoprint/raw/master/scripts/octoprint.service
+sudo mv octoprint.service /etc/systemd/system/octoprint.service
+sudo systemctl enable octoprint.service
+</code>
 
-	disable_uboot_overlay_emmc=1;
-	disable_uboot_overlay_audio=1;
+Add the current user to the dialout groups.
+<code>
+sudo usermod -a -G tty debian
+sudo usermod -a -G dialout debian
+</code>
 
-After installing and rebooting, check to see if the trees are loaded. <code>sudo /opt/scripts/tools/version.sh | grep -i UBOOT</code> This should return something simular to the following. Note that our overlay is displayed as an option.
+Now is a good time to reboot. It will reload the user permission we just added, and will verify Octoprint is working and loading.
 
-	UBOOT: Booted Device-Tree:[am335x-boneblack-uboot.dts]
-	UBOOT: Loaded Overlay:[AM335X-PRU-RPROC-4-14-TI-00A0]
-	UBOOT: Loaded Overlay:[BB-ADC-00A0]
-	UBOOT: Loaded Overlay:[BB-NHDMI-TDA998x-00A0]
-	uboot_overlay_options:[enable_uboot_overlays=1]
-	uboot_overlay_options:[disable_uboot_overlay_emmc=1]
-	uboot_overlay_options:[disable_uboot_overlay_audio=1]
-	uboot_overlay_options:[uboot_overlay_pru=/lib/firmware/AM335X-PRU-RPROC-4-14-TI-00A0.dtbo]
-	uboot_overlay_options:[dtb_overlay=/lib/firmware/CRAMPS-00A0.dtbo]
-
-## Gotcha's for the new players...
-
-### U-Boot version
-The debian version I originally installed had an old version of U-Boot. Updating should be the first thing you do before going through the work of setting up the DTO.
-U-Boot version can be checked by running:
-
-	sudo /opt/scripts/tools/version.sh | grep bootloader
-
-U-Boot can be updated by running the following as root (sudo su):
-
-	cd /opt/scripts
-	git pull
-	./tools/developers/update_bootloader.sh
-	reboot
-
-### Device Tree Compiler Version
-It is know on some systems the DTC may be out of date. If you get an error during make about the "-@" flag, it needs updating.
-Update with these commands:
-
-	wget -c https://raw.githubusercontent.com/RobertCNelson/tools/master/pkgs/dtc.sh
-	chmod +x dtc.sh
-	sudo ./dtc.sh
-
+### Download and Install Klipper
+I'm basing my instructions off of [Klippers instructions](https://www.klipper3d.org/beaglebone.html).
 
