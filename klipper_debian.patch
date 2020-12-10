@@ -1,0 +1,48 @@
+--- install-debian.sh.orig	2020-12-10 09:53:48.783944045 +0000
++++ install-debian.sh	2020-12-10 09:59:20.605615185 +0000
+@@ -11,20 +11,20 @@
+ install_packages()
+ {
+     # Packages for python cffi
+-    PKGLIST="python-virtualenv virtualenv python-dev libffi-dev build-essential"
++    PKGLIST="python-virtualenv python2-dev libffi-dev build-essential"
+     # kconfig requirements
+     PKGLIST="${PKGLIST} libncurses-dev"
+     # hub-ctrl
+     PKGLIST="${PKGLIST} libusb-dev"
+     # AVR chip installation and building
+-    PKGLIST="${PKGLIST} avrdude gcc-avr binutils-avr avr-libc"
++    #PKGLIST="${PKGLIST} avrdude gcc-avr binutils-avr avr-libc"
+     # ARM chip installation and building
+     PKGLIST="${PKGLIST} stm32flash libnewlib-arm-none-eabi"
+     PKGLIST="${PKGLIST} gcc-arm-none-eabi binutils-arm-none-eabi libusb-1.0"
+ 
+     # Update system package info
+-    report_status "Running apt-get update..."
+-    sudo apt-get update
++    #report_status "Running apt-get update..."
++    #sudo apt-get update
+ 
+     # Install desired packages
+     report_status "Installing packages..."
+@@ -67,13 +67,13 @@
+ RestartSec=10
+ EOF
+ # Use systemctl to enable the klipper systemd service script
+-    sudo systemctl enable klipper.service
++    #sudo systemctl enable klipper.service
+ }
+ 
+ # Step 4: Start host software
+ start_software()
+ {
+-    report_status "Launching Klipper host software..."
++    #report_status "Launching Klipper host software..."
+     sudo systemctl start klipper
+ }
+ 
+@@ -102,4 +102,3 @@
+ install_packages
+ create_virtualenv
+ install_script
+-start_software

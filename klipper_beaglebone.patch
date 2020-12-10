@@ -1,0 +1,14 @@
+--- install-beaglebone.sh.orig	2020-12-10 09:53:58.123792688 +0000
++++ install-beaglebone.sh	2020-12-10 10:15:53.038298858 +0000
+@@ -24,8 +24,9 @@
+ install_script()
+ {
+     report_status "Installing pru start script..."
+-    sudo cp "${SRCDIR}/scripts/klipper-pru-start.sh" /etc/init.d/klipper_pru
+-    sudo update-rc.d klipper_pru defaults
++   sudo cp "${SRCDIR}/scripts/klipper-pru-start.sh" /etc/init.d/klipper_pru
++   #sudo update-rc.d klipper_pru defaults
++   sudo systemctl enable klipper_pru
+ }
+ 
+ # Step 4: Install pru udev rule

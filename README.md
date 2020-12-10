@@ -2,7 +2,7 @@
 This repo is where you'll find the device tree files and instructions on how to be able to use CRAMPS on the Beagle Board Black. This has changed a lot over recent years, so if it becomes out of date again please open an issue.
 
 ##STATUS
-This code is still in developement.
+This code is still in developement. Most of the command I've tested but are transposed over. If you come across errors please create an issue.
 Written for Debian 10.3
 
 ###TODO:
@@ -94,4 +94,18 @@ Now is a good time to reboot. It will reload the user permission we just added, 
 
 ### Download and Install Klipper
 I'm basing my instructions off of [Klippers instructions](https://www.klipper3d.org/beaglebone.html).
+Download klipper by using...
+<code>git clone https://github.com/KevinOConnor/klipper</code>
+
+First we need to patch the original debian and beaglebone install scripts.
+<code>
+wget https://raw.githubusercontent.com/monoxide13/CRAMPS-and-Klipper/master/klipper_debian.patch
+wget https://raw.githubusercontent.com/monoxide13/CRAMPS-and-Klipper/master/klipper_beaglebone.patch
+patch -u klipper/scripts/install-debian.sh -i klipper_debian.patch
+patch -u scripts/install-beaglebone.sh -i klipper_beaglebone.patch
+</code>
+Now install klipper.
+<code>
+klipper/scripts/install_beaglebone.sh
+</code>
 
