@@ -41,7 +41,7 @@ disable_uboot_overlay_audio=1
 
 ### Build the Device Tree Blob and configure pins
 The device tree is used to configure the pins at startup. It does not define the pins in Linux, only sets the pin mux.
-MORE NEEDED HERE...
+MORE NEEDED HERE... add pin_ctl script and execute on boot.
 
 
 ### Download and Install Octoprint
