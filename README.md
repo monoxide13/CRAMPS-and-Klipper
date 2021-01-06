@@ -20,7 +20,8 @@ The advantage of using the Beagle Bone Black (BBB) is that the BBB has 2 onboard
 
 ## Instructions:
 I'm starting from a blank install of Debian 10.3 IOT and booting the Beagle Bone from the SD card. If you didn't expand the filesystem after writing debian to the SD, it can be done on the Beagle Bone with "/opt/scripts/tools/grow_partition.sh".
-### Update system
+
+### Update and configure system
 First step is to make sure our system is up to date. If you need to connect to wifi use "/opt/scripts/network/wifi_enterprise.sh"
 <code>
 sudo apt-get update
@@ -31,6 +32,17 @@ git pull
 /opt/scripts/tools/developers/update_bootloader.sh
 shutdown -r now
 </code>
+
+Now we have to edit the boot file. In /boot/uEnv.txt, uncomment the following two lines.
+<code>
+disable_uboot_overlay_emmc=1
+disable_uboot_overlay_audio=1
+</code>
+
+### Build the Device Tree Blob and configure pins
+The device tree is used to configure the pins at startup. It does not define the pins in Linux, only sets the pin mux.
+MORE NEEDED HERE...
+
 
 ### Download and Install Octoprint
 Octoprint requires Python 3.6+. The latest version of Python on Debian 10.3 at the time of writing is 3.7
@@ -55,7 +67,7 @@ If you want to make this version of Python the default, run "sudo make install" 
 <code>
 sudo make altinstall
 </code>
-Veryify the version by running "python3.9 --version".
+Verify the version by running "python3.9 --version".
 Create the virtual environment.
 <code>
 python3.9 -m venv octoprint
@@ -76,6 +88,8 @@ octoprint/bin/octoprint serve
 </code>
 
 Navigate to http://<IP>:5000 and go through the Octoprint setup.
+
+After setup, we need to add a Serial Port to Octoprint. Click on the Settings tab, and under Serial Port add "/tmp/printer" to "Additional serial ports".
 
 Set Octoprint to start on boot. After downloading the service file, change "User=" to be your user, and "ExecStart=" to be the path of installation (/home/debian/octoprint/bin/octoprint).
 <code>
@@ -104,8 +118,20 @@ wget https://raw.githubusercontent.com/monoxide13/CRAMPS-and-Klipper/master/klip
 patch -u klipper/scripts/install-debian.sh -i klipper_debian.patch
 patch -u scripts/install-beaglebone.sh -i klipper_beaglebone.patch
 </code>
-Now install klipper.
+Now install Klippers dependencies and serviced files.
 <code>
 klipper/scripts/install_beaglebone.sh
 </code>
+First we'll compile Klippers PRU program. When you run "make menuconfig" below, select "Beaglebone PRU".
+<code>
+make menuconfig
+make flash
+</code>
+Now run the above two commands again, but this time in menuconfig, select "Linux process".
 
+### Configuration
+So now we should have 3 programs that run at boot via systemd: octoprint, klipper_pru, and klipper.
+
+Klipper uses it's own configuration file. I've included mine for reference, "printer.cfg". This file needs to sit in your home directory "~/". This file needs to be set up correctly before starting Klipper. Copy/edit this file as needed, then run the included script "restart_klipper.sh".
+
+To check for completeness and correctness of the file, check the log file at "/tmp/klippy.log". I found it also helpful to go into octoprint and connect to the printer, and in the terminal send "help". This will list all available commands. If something is wrong with your file you'll notice it'll only give you 4 or 5 commands. If you send "status" klipper will either crash and return the line it of the error, or if everything is OK it'll return "READY".
