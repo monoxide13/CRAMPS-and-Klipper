@@ -41,8 +41,21 @@
 	// Analog digital converter
 		"tscadc";
 
-	// Configure the pins.
+	// Enable reporting via /proc/device-tree/overlays/chosen/
 	fragment@0 {
+		target-path="/";
+		__overlay__ {
+			chosen {
+				overlays {
+	//				CRAMPS-00A0 = __TIMESTAMP__;
+					CRAMPS-00A0 = "running";
+				};
+			};
+		};
+	};
+
+	// Configure the pins.
+	fragment@1 {
 		target = <&am33xx_pinmux>;
 		__overlay__ {
 			cramps_pins: cramps_pins {
@@ -85,7 +98,7 @@
 	};
 
 	// Enable the previous pins and assign them to the On Chip Periprial driver.
-	fragment@1{
+	fragment@2{
 		target = <&ocp>;
 		__overlay__ {
 			cramps_helper: cramps_helper {
@@ -98,7 +111,7 @@
 	};
 
 	// Turn on the PRUs
-	fragment@2{
+	fragment@3{
 		target = <&pruss>;
 		__overlay__ {
 			status = "okay";
