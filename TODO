@@ -1,0 +1,3 @@
+- Set pinctl file to run during boot.
+- Set octoprint systemd to depend on klipper.
+- Set klipper systemd to depend on klipper_pru.
