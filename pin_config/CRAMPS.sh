@@ -22,6 +22,7 @@ pinArray=(
 "50 out" #Motor Enable
 "61 out" #EStop switch out from software
 "27 in"  #EStop in from button
+"127 out" #Status LED
 
 ### ENDSTOPS ###
 "67 in"  #X Min
