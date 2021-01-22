@@ -48,7 +48,7 @@ pinArray=(
 ### FETS ###
 "45 out" #1
 "48 out" #2
-"83 out" #3
+"125 out" #3
 "3 out"  #4
 "20 out" #5
 "2 out"  #6
